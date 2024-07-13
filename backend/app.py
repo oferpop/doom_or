@@ -14,7 +14,7 @@ app = Flask(__name__)
 #             static_folder='/Users/oferkorichoner/Desktop/jhon brise/new cours/doom_librarry/static/img')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///library.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = os.getenv('FLASK_UPLOAD_FOLDER', '../static/img')
+app.config['UPLOAD_FOLDER'] = os.getenv('FLASK_UPLOAD_FOLDER', 'static/img')
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
 # app.config['UPLOAD_FOLDER'] = os.getenv('FLASK_UPLOAD_FOLDER', 'static/img')
@@ -164,9 +164,10 @@ def register():
     db.session.commit()
 
     # Automatically log in the user after registration
+    expires = timedelta(hours=1)
     access_token = create_access_token(
-        identity={'mail': new_customer.mail, 'role': new_customer.role})
-    return jsonify({'message': 'User registered successfully', 'access_token': access_token}), 201
+        identity={'mail': new_customer.mail, 'role': new_customer.role}, expires_delta=expires)
+    return jsonify(message='User registered successfully', access_token=access_token, user_name=data['mail']), 200
 
 
 @app.route('/login', methods=['POST'])
@@ -245,7 +246,7 @@ def add_book():
 @app.route('/books/<int:book_id>', methods=['GET'])
 def get_book_by_id(book_id):
     book = Book.query.get_or_404(book_id)
-    loan = Loan.query.filter_by(book_id=book.id, return_date=None).first()
+    loan = Loan.query.filter_by(book_id=book.id).filter(Loan.return_date >= datetime.now()).first()
     book_dict = {
         'id': book.id,
         'name': book.name,
@@ -274,7 +275,7 @@ def get_books():
 
     result = []
     for book in books:
-        loan = Loan.query.filter_by(book_id=book.id, return_date=None).first()
+        loan = Loan.query.filter_by(book_id=book.id).filter(Loan.return_date >= datetime.now()).first()
         book_dict = {
             'id': book.id,
             'name': book.name,
@@ -529,17 +530,19 @@ def add_loan():
         return jsonify({'error': 'Invalid input'}), 400
 
     data = request.json
-    customer = None
-    book = None
-
-    if 'cust_id' in data and 'book_id' in data:
+    customer = Customer.query.filter_by(mail=current_user_identity['mail']).first()
+    if 'cust_id' in data:
+        # for admin to manual rent for a different user
         customer = Customer.query.get(data['cust_id'])
-        book = Book.query.get(data['book_id'])
-    elif 'customer_email' in data and 'book_name' in data:
+    elif 'customer_email' in data:
+        # for admin to manual rent for a different user
         customer = Customer.query.filter_by(mail=data['customer_email']).first()
+
+    book = None
+    if 'book_id' in data:
+        book = Book.query.get(data['book_id'])
+    elif 'book_name' in data:
         book = Book.query.filter_by(name=data['book_name']).first()
-    else:
-        return jsonify({'error': 'Invalid input'}), 400
 
     if not customer:
         return jsonify({'error': 'Customer not found'}), 404

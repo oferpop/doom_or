@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library - Manage Loans</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
@@ -120,7 +120,7 @@
             <form id="get-loan-by-email-form">
                 <div class="form-group">
                     <label for="customer_email">Customer Email:</label>
-                    <input type="email" id="customer_email" name="customer_email" required>
+                    <input type="email" id="get_loan_customer_email" name="customer_email" required>
                 </div>
                 <button type="submit">Get Loan</button>
             </form>
@@ -235,7 +235,7 @@
 
         document.getElementById('get-loan-by-email-form').addEventListener('submit', function (event) {
             event.preventDefault();
-            const customerEmail = document.getElementById('customer_email').value;
+            const customerEmail = document.getElementById('get_loan_customer_email').value;
 
             const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
 

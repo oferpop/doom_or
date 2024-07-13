@@ -6,9 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Library - Home</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-   -->
 </head>
 
 <body>
@@ -182,7 +181,10 @@
                     if (response.data.access_token) {
                         alert(response.data.message);
                         document.getElementById('register-container').style.display = 'none';
-                        document.getElementById('login-container').style.display = 'block'; // Show login form after successful registration
+                        // document.getElementById('login-container').style.display = 'block'; // Show login form after successful registration
+                        localStorage.setItem('access_token', response.data.access_token);
+                        localStorage.setItem('user_name', response.data.user_name); // Store user name
+                        location.reload();
                     } else {
                         document.getElementById('register-error-message').style.display = 'block';
                     }
@@ -242,7 +244,7 @@
                         bookCard.classList.add('col-md-4', 'mb-4');
                         bookCard.innerHTML = `
                             <div class="card h-100">
-                                <img class="card-img-top" src="${book.img}" alt="${book.name}">
+                                <img class="card-img-top" src="${SERVER}${book.img}" alt="${book.name}">
                                 <div class="card-body text-center">
                                     <h5 class="card-title">${book.name}</h5>
                                     <p class="card-text">Author: ${book.author}</p>
