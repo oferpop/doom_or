@@ -10,16 +10,17 @@ from functools import wraps
 # Configure Flask app
 app = Flask(__name__)
 
-# app = Flask(__name__, static_url_path='/static',
-#             static_folder='/Users/oferkorichoner/Desktop/jhon brise/new cours/doom_librarry/static/img')
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///library.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = os.getenv('FLASK_UPLOAD_FOLDER', 'static/img')
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
 
-# app.config['UPLOAD_FOLDER'] = os.getenv('FLASK_UPLOAD_FOLDER', 'static/img')
+
 # Change this to a more secure key
-app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
+# app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
+app.config['JWT_SECRET_KEY'] = 'ofer_is_the_key'
+
 
 db = SQLAlchemy(app)
 CORS(app)  # Enable CORS for all routes
