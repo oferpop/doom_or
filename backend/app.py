@@ -304,9 +304,21 @@ def update_book(book_id):
         return jsonify({'error': 'Admin access required'}), 403
 
     book = Book.query.get_or_404(book_id)
-    data = request.get_json()
+    data = request.form
+    if 'img' in request.files and request.files['img'].filename != '':
+        # user sent a new file to update, requires different handling
+        img = request.files['img']
+        if img and allowed_file(img.filename):
+            filename = secure_filename(img.filename)
+            img.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            img_url = url_for('static', filename='img/' + filename)
+            setattr(book, "img", img_url)
+        else:
+            return jsonify({"error": "Invalid image format"}), 400
+
     for key, value in data.items():
         setattr(book, key, value)
+
     db.session.commit()
     return jsonify(book.to_dict())
 

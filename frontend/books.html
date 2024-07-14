@@ -344,6 +344,7 @@
             document.getElementById('update-year_published').value = year_published;
             document.getElementById('update-type').value = type;
             document.getElementById('update-img').src = img;
+            document.getElementById('update-img-input').value = null;
             document.getElementById('update-book-form').setAttribute('data-id', id);
             document.getElementById('updateBookModal').style.display = 'block';
         }
@@ -351,18 +352,25 @@
         document.getElementById('update-book-form').addEventListener('submit', function (event) {
             event.preventDefault();
             const bookId = document.getElementById('update-book-form').getAttribute('data-id');
-            const updatedBook = {
-                name: document.getElementById('update-name').value,
-                author: document.getElementById('update-author').value,
-                year_published: document.getElementById('update-year_published').value,
-                type: document.getElementById('update-type').value,
-                img: document.getElementById('update-img').src
-            };
+            const updatedBookFormData = new FormData();
+            updatedBookFormData.append('name', document.getElementById('update-name').value);
+            updatedBookFormData.append('author', document.getElementById('update-author').value);
+            updatedBookFormData.append('year_published', document.getElementById('update-year_published').value);
+            updatedBookFormData.append('type', document.getElementById('update-type').value);
+
+            const imgInput = document.getElementById('update-img-input');
+            if (imgInput.files.length > 0) {
+                updatedBookFormData.append('img', document.getElementById('update-img-input').files[0]);
+            } else {
+                // keep original img
+                updatedBookFormData.append('img_url', document.getElementById('update-img').src);
+            }
 
             const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
 
-            axios.put(`${SERVER}/books/${bookId}`, updatedBook, {
+            axios.put(`${SERVER}/books/${bookId}`, updatedBookFormData, {
                 headers: {
+                    'Content-Type': 'multipart/form-data',
                     'Authorization': 'Bearer ' + accessToken
                 }
             })
